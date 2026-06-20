@@ -15,6 +15,13 @@ export function relativeTime(value: string) {
   return `${Math.round(hours / 24)}d ago`
 }
 
+export function freshnessLabel(value?: string) {
+  if (!value) return 'Not updated yet'
+  const deltaMinutes = Math.max(0, Math.round((Date.now() - new Date(value).getTime()) / 60_000))
+  if (deltaMinutes < 2) return 'Updated just now'
+  return `Updated ${relativeTime(value)}`
+}
+
 export function dateTime(value?: string) {
   if (!value) return 'Not scheduled'
   return new Intl.DateTimeFormat('en-IN', {
@@ -41,6 +48,21 @@ export function platformCode(platform: Platform) {
     youtube: 'YT',
     tiktok: 'TT',
     threads: 'TH',
+    reddit: 'RD',
   }
   return codes[platform]
+}
+
+export function platformColor(platform: Platform) {
+  const colors: Record<Platform, string> = {
+    instagram: '#e85d92',
+    facebook: '#1877f2',
+    linkedin: '#2563eb',
+    x: '#111827',
+    youtube: '#ef4444',
+    tiktok: '#111827',
+    threads: '#4b5563',
+    reddit: '#ff4500',
+  }
+  return colors[platform]
 }

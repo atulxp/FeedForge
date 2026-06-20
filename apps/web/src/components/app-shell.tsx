@@ -3,6 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ReactNode } from 'react'
+import { useAuth } from './auth-provider'
+import { LoadingState } from './loading-state'
 
 const navItems = [
   { href: '/', label: 'Overview', icon: 'O' },
@@ -10,17 +12,23 @@ const navItems = [
   { href: '/content', label: 'Content', icon: 'C' },
   { href: '/calendar', label: 'Calendar', icon: 'D' },
   { href: '/reports', label: 'Reports', icon: 'R' },
+  { href: '/ai-insights', label: 'AI Insights', icon: 'I' },
 ]
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname()
+  const { user, loading, logout } = useAuth()
+  const isAuthPage = pathname === '/login' || pathname === '/signup'
+
+  if (isAuthPage) return <>{children}</>
+  if (loading || !user) return <LoadingState label="Checking your session..." />
 
   return (
     <main className="app-shell">
       <aside className="sidebar">
-        <Link className="brand" href="/" aria-label="ZPF home">
-          <span className="brand-mark">.5</span>
-          <span>Zero Point Five<small>Command Center</small></span>
+        <Link className="brand" href="/" aria-label="FeedForge home">
+          <span className="brand-mark">FF</span>
+          <span>FeedForge<small>Command Center</small></span>
         </Link>
 
         <nav>
@@ -35,19 +43,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="sidebar-bottom">
           <Link href="/settings"><span className="nav-icon">S</span>Settings</Link>
           <div className="profile">
-            <span className="avatar">F</span>
-            <span>Founder<small>Owner</small></span>
-            <b>...</b>
+            <span className="avatar">{user.name.charAt(0).toUpperCase()}</span>
+            <span className="profile-copy"><strong>{user.name}</strong><small title={user.email}>{user.email}</small></span>
+            <button className="logout-button" onClick={() => void logout()}>Log out</button>
           </div>
         </div>
       </aside>
 
       <section className="workspace">
         <header className="topbar">
-          <Link className="mobile-brand" href="/" aria-label="Home">.5</Link>
-          <div className="scope"><span className="status-dot" />All channels <b>v</b></div>
+          <Link className="mobile-brand" href="/" aria-label="Home">FF</Link>
+          <div className="scope"><span className="status-dot" />All channels</div>
           <div className="top-actions">
-            <span className="local-badge">Local workspace</span>
+            <span className="local-badge">Private workspace</span>
             <Link className="primary-button" href="/content/new">+ Create content</Link>
           </div>
         </header>

@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
 import { AppShell } from '@/components/app-shell'
+import { AuthProvider } from '@/components/auth-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'ZPF Command Center',
-  description: 'One operating surface for the Zero Point Five media brand.',
+  title: 'FeedForge',
+  description: 'One operating surface to plan, publish, measure, and learn across every channel.',
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><AppShell>{children}</AppShell></body>
+      <body><AuthProvider><AppShell>{children}</AppShell></AuthProvider></body>
     </html>
   )
 }

@@ -20,7 +20,7 @@ import { relations } from 'drizzle-orm'
 // ENUMS
 // ────────────────────────────────────────────────────────────
 export const platformEnum = pgEnum('platform', [
-  'instagram', 'facebook', 'linkedin', 'x', 'youtube', 'tiktok', 'threads', 'spotify', 'apple',
+  'instagram', 'facebook', 'linkedin', 'x', 'youtube', 'tiktok', 'threads', 'reddit', 'spotify', 'apple',
 ])
 
 export const roleEnum = pgEnum('role', [
@@ -77,6 +77,17 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
+
+export const sessions = pgTable('sessions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  tokenHash: varchar('token_hash', { length: 64 }).notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+  userIdx: index('idx_sessions_user').on(t.userId),
+  expiryIdx: index('idx_sessions_expiry').on(t.expiresAt),
+}))
 
 // ────────────────────────────────────────────────────────────
 // ORG MEMBERS (user <-> org junction with role)
@@ -143,6 +154,19 @@ export const accountTokens = pgTable('account_tokens', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (t) => ({
   accountIdx: index('idx_account_tokens_account').on(t.accountId),
+}))
+
+export const oauthStates = pgTable('oauth_states', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  platform: platformEnum('platform').notNull(),
+  stateHash: varchar('state_hash', { length: 64 }).notNull().unique(),
+  encryptedCodeVerifier: text('encrypted_code_verifier'),
+  scopes: text('scopes').array().default([]).notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (t) => ({
+  userPlatformIdx: index('idx_oauth_states_user_platform').on(t.userId, t.platform),
 }))
 
 // ────────────────────────────────────────────────────────────
@@ -341,6 +365,22 @@ export const auditLogs = pgTable('audit_logs', {
   actorIdx: index('idx_audit_logs_actor').on(t.actorId),
 }))
 
+export const reportTemplates = pgTable('report_templates', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  orgId: uuid('org_id').notNull().references(() => organizations.id, { onDelete: 'cascade' }),
+  createdBy: uuid('created_by').notNull().references(() => users.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  format: varchar('format', { length: 20 }).default('csv').notNull(),
+  metricSet: text('metric_set').array().default([]).notNull(),
+  accountIds: uuid('account_ids').array().default([]).notNull(),
+  whiteLabel: boolean('white_label').default(false).notNull(),
+  schedule: varchar('schedule', { length: 20 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (t) => ({
+  orgIdx: index('idx_report_templates_org').on(t.orgId),
+}))
+
 // ────────────────────────────────────────────────────────────
 // RELATIONS
 // ────────────────────────────────────────────────────────────
@@ -358,6 +398,7 @@ export const organizationsRelations = relations(organizations, ({ many }) => ({
 export const usersRelations = relations(users, ({ many }) => ({
   memberships: many(orgMembers),
   posts: many(posts),
+  sessions: many(sessions),
 }))
 
 export const accountsRelations = relations(accounts, ({ one, many }) => ({
