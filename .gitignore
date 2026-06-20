@@ -1,0 +1,14 @@
+node_modules/
+.next/
+dist/
+.turbo/
+coverage/
+.env
+.env.local
+.tmp-pdf-tools/
+.tools/
+.pnpm-store/
+*.tsbuildinfo
+infra/docker/data/
+apps/api/data/local-state.json
+*.log
