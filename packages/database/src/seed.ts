@@ -14,8 +14,8 @@ async function seed() {
   await db
     .insert(organizations)
     .values({
-      name: 'Zero Point Five Show',
-      slug: 'zero-point-five',
+      name: 'FeedForge Demo',
+      slug: 'feedforge-demo',
       plan: 'internal',
     })
     .onConflictDoNothing({ target: organizations.slug })

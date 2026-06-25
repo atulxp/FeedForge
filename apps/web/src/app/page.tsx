@@ -49,7 +49,7 @@ export default function DashboardPage() {
   }
 
   if (error) return <div className="content"><ErrorState message={error} retry={load} /></div>
-  if (!dashboard) return <div className="content"><LoadingState label="Loading command center..." /></div>
+  if (!dashboard) return <div className="content"><LoadingState label="Loading command center and syncing connected channels..." /></div>
 
   const latest = dashboard.latestContent
 

@@ -60,26 +60,21 @@ For unsupported or not-yet-approved live platforms, the app provides a sample ch
 ### 1. Install prerequisites
 
 - Node.js 20 or newer.
-- pnpm 9 or newer.
+- pnpm 9 or newer. Corepack is recommended.
 - Git.
 - Optional: Docker Desktop for Postgres/Redis/MinIO.
 - Optional: Ollama for local AI features.
 
-If pnpm is not installed globally on Windows, this repo includes a local shim at:
+If pnpm is not installed globally, enable it through Corepack:
 
 ```powershell
-.\.tools\pnpm.CMD
+corepack enable
+corepack prepare pnpm@9.0.0 --activate
 ```
 
 ### 2. Install dependencies
 
 ```powershell
-.\.tools\pnpm.CMD install
-```
-
-If pnpm is globally available:
-
-```bash
 pnpm install
 ```
 
@@ -115,12 +110,6 @@ Do not commit `.env`.
 ### 4. Start the app
 
 ```powershell
-.\.tools\pnpm.CMD dev
-```
-
-Or:
-
-```bash
 pnpm dev
 ```
 
@@ -136,29 +125,13 @@ API health:
 http://localhost:4000/api/health
 ```
 
-### 5. Demo login
+### 5. Create a workspace
 
-```text
-Email: founder@zeropointfive.local
-Password: password123
-```
-
-You can also create a new workspace from the signup page.
+Use the signup page to create a workspace, then connect channels from Settings.
 
 ## Useful Commands
 
 ```powershell
-.\.tools\pnpm.CMD dev
-.\.tools\pnpm.CMD typecheck
-.\.tools\pnpm.CMD lint
-.\.tools\pnpm.CMD build
-.\.tools\pnpm.CMD docker:dev
-.\.tools\pnpm.CMD docker:down
-```
-
-Global pnpm equivalents:
-
-```bash
 pnpm dev
 pnpm typecheck
 pnpm lint
@@ -678,7 +651,7 @@ http://localhost:4000/api/health
 If the API is down, restart:
 
 ```powershell
-.\.tools\pnpm.CMD dev
+pnpm dev
 ```
 
 ### Browser shows an old error overlay
@@ -739,8 +712,8 @@ Reports export the current signed-in user's accounts and posts. Connect a channe
 Useful checks:
 
 ```powershell
-.\.tools\pnpm.CMD typecheck
-.\.tools\pnpm.CMD lint
+pnpm typecheck
+pnpm lint
 ```
 
 API health:

@@ -89,14 +89,14 @@ export class AccountsController {
       headers: {
         Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': process.env.REDDIT_USER_AGENT ?? 'zpf-command-center/0.1',
+        'User-Agent': process.env.REDDIT_USER_AGENT ?? 'feedforge/0.1',
       },
       body: new URLSearchParams({ grant_type: 'authorization_code', code, redirect_uri: redirectUri }),
     })
     if (!tokenResponse.ok) throw new Error(`Reddit token exchange failed (${tokenResponse.status})`)
     const token = await tokenResponse.json() as { access_token: string; refresh_token?: string; expires_in?: number; scope?: string }
     const profileResponse = await fetch('https://oauth.reddit.com/api/v1/me', {
-      headers: { Authorization: `Bearer ${token.access_token}`, 'User-Agent': process.env.REDDIT_USER_AGENT ?? 'zpf-command-center/0.1' },
+      headers: { Authorization: `Bearer ${token.access_token}`, 'User-Agent': process.env.REDDIT_USER_AGENT ?? 'feedforge/0.1' },
     })
     if (!profileResponse.ok) throw new Error(`Reddit identity validation failed (${profileResponse.status})`)
     const profile = await profileResponse.json() as { id: string; name: string }

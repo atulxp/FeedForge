@@ -1,10 +1,5 @@
-import type { LocalState, User } from '@zpf/shared'
+import type { LocalState } from '@zpf/shared'
 import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto'
-
-const now = new Date()
-export const demoUserId = 'user-demo'
-
-const hoursAgo = (hours: number) => new Date(now.getTime() - hours * 3_600_000).toISOString()
 
 export function hashPassword(password: string, salt = randomBytes(16).toString('hex')) {
   return {
@@ -19,23 +14,9 @@ export function verifyPassword(password: string, salt: string, hash: string) {
   return current.length === expected.length && timingSafeEqual(current, expected)
 }
 
-const user = (id: string, email: string, name: string, password: string): User & { passwordHash: string; passwordSalt: string } => {
-  const passwordHash = hashPassword(password)
-  return {
-    id,
-    email,
-    name,
-    createdAt: hoursAgo(24),
-    passwordHash: passwordHash.hash,
-    passwordSalt: passwordHash.salt,
-  }
-}
-
 export function createSeedState(): LocalState {
   return {
-    users: [
-      user(demoUserId, 'founder@zeropointfive.local', 'Founder', 'password123'),
-    ],
+    users: [],
     sessions: [],
     encryptedTokens: [],
     providerCredentials: [],

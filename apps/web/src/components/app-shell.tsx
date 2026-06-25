@@ -59,6 +59,19 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link className="primary-button" href="/content/new">+ Create content</Link>
           </div>
         </header>
+        <nav className="mobile-nav" aria-label="Mobile navigation">
+          {[...navItems, { href: '/settings', label: 'Settings', icon: 'S' }].map((item) => (
+            <Link className={pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href)) ? 'active' : ''} href={item.href} key={item.href}>
+              <span className="nav-icon">{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="mobile-account">
+          <span className="avatar">{user.name.charAt(0).toUpperCase()}</span>
+          <span className="profile-copy"><strong>{user.name}</strong><small title={user.email}>{user.email}</small></span>
+          <button className="logout-button" onClick={() => void logout()}>Log out</button>
+        </div>
         {children}
       </section>
     </main>

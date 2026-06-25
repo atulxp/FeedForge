@@ -1,8 +1,8 @@
 {
-  "name": "zpf-command-center",
+  "name": "feedforge",
   "version": "0.1.0",
   "private": true,
-  "description": "Zero Point Five Social Command Center - Unified social media management platform",
+  "description": "FeedForge - unified social publishing, analytics, AI insights, and reports",
   "workspaces": [
     "apps/*",
     "packages/*"
