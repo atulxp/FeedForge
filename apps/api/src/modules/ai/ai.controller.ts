@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post, Req } from '@nestjs/common'
 import type { AiInsightsSnapshot, CaptionRequest, CaptionResponse } from '@zpf/shared'
 import { currentUserId } from '../../auth/http-session'
 import { LocalStore } from '../../store/local.store'
+import { generateText } from './ai.provider'
 
 @Controller('ai-insights')
 export class AiController {
@@ -17,7 +18,7 @@ export class AiController {
     const analytics = this.store.getAnalytics(userId, { metric: 'reach', denominator: 'reach' })
     const bestCells = [...analytics.heatmap].filter((cell) => cell.score > 0).sort((a, b) => b.score - a.score).slice(0, accounts.length)
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    const ollamaRecommendation = await this.generateRecommendationWithOllama(accounts, posts)
+    const aiRecommendation = await this.generateRecommendation(accounts, posts)
     const sourcePosts = posts.filter((post) => post.sourceEpisodeId)
 
     return {
@@ -35,20 +36,20 @@ export class AiController {
             accountId: account.id,
             label: `${account.displayName}: collect post history`,
             confidence: 0,
-            reason: 'This channel is connected, but FeedForge needs published post timestamps and engagement to recommend a real posting slot.',
+            reason: 'This channel is connected, but 0.5 Show needs published post timestamps and engagement to recommend a real posting slot.',
           })),
       viralScores: viralScores(posts),
       recommendations: [
         ...analytics.trends.slice(0, 4).map((trend) => ({
           title: `More content around "${trend.label}"`,
           confidence: Math.min(0.95, 0.62 + trend.lift / 10),
-          action: `This is based only on tagged content already saved in FeedForge. Create a new post using the ${trend.label} tag if it still fits your strategy.`,
+          action: `This is based only on tagged content already saved in 0.5 Show. Create a new post using the ${trend.label} tag if it still fits your strategy.`,
         })),
-        ...(ollamaRecommendation ? [ollamaRecommendation] : []),
-        ...(!ollamaRecommendation && accounts.length ? [{
+        ...(aiRecommendation ? [aiRecommendation] : []),
+        ...(!aiRecommendation && accounts.length ? [{
           title: 'Next data step',
           confidence: 0,
-          action: `FeedForge sees ${accounts.length} connected channel${accounts.length === 1 ? '' : 's'}. Publish or sync recent posts so it can compare formats, topics, and posting times without inventing performance data.`,
+          action: `0.5 Show sees ${accounts.length} connected channel${accounts.length === 1 ? '' : 's'}. Publish or sync recent posts so it can compare formats, topics, and posting times without inventing performance data.`,
         }] : []),
       ],
       repurposing: sourcePosts.map((post) => ({
@@ -68,35 +69,26 @@ export class AiController {
   @Post('caption')
   async caption(@Req() request: { headers?: { cookie?: string } }, @Body() input: CaptionRequest): Promise<CaptionResponse> {
     currentUserId(this.store, request)
-    const ollamaUrl = this.ollamaUrl()
-    if (ollamaUrl) {
-      try {
-        const response = await fetch(`${ollamaUrl}/api/generate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: this.ollamaModel(),
-            stream: false,
-            prompt: `Write one ${input.platform} caption for the user's brand. Tone: ${input.tone ?? 'direct, thoughtful, minimal'}. Topic: ${input.topic}. Source: ${input.sourceText ?? 'none'}. Respect platform length and do not claim facts not in the source. Return only the caption.`,
-          }),
-        })
-        if (response.ok) {
-          const body = await response.json() as { response?: string }
-          if (body.response?.trim()) return { copy: body.response.trim(), provider: 'ollama', requiresHumanApproval: true }
-        }
-      } catch {
-        // Fall through to a deterministic local caption.
-      }
+
+    const prompt = `Write one ${input.platform} caption for the user's brand. Tone: ${input.tone ?? 'direct, thoughtful, minimal'}. Topic: ${input.topic}. Source: ${input.sourceText ?? 'none'}. Respect platform length and do not claim facts not in the source. Return only the caption text, no preamble.`
+
+    try {
+      const result = await generateText(prompt)
+      const limit = input.platform === 'threads' ? 500 : input.platform === 'x' ? 280 : 1_500
+      return { copy: result.text.slice(0, limit), provider: result.provider, requiresHumanApproval: true }
+    } catch {
+      // Graceful local fallback — never leave the user with an error on a caption request
+      const prefix = input.platform === 'reddit' ? 'Discussion:' : input.platform === 'x' ? 'A thought:' : 'New post:'
+      const source = input.sourceText?.trim() || input.topic.trim()
+      const limit = input.platform === 'threads' ? 500 : input.platform === 'x' ? 280 : 1_500
+      return { copy: `${prefix} ${source}`.slice(0, limit), provider: 'local-template', requiresHumanApproval: true }
     }
-    const prefix = input.platform === 'reddit' ? 'Discussion:' : input.platform === 'x' ? 'A thought:' : 'New post:'
-    const source = input.sourceText?.trim() || input.topic.trim()
-    const limit = input.platform === 'threads' ? 500 : input.platform === 'x' ? 280 : 1_500
-    return { copy: `${prefix} ${source}`.slice(0, limit), provider: 'local-template', requiresHumanApproval: true }
   }
 
-  private async generateRecommendationWithOllama(accounts: ReturnType<LocalStore['getAccounts']>, posts: ReturnType<LocalStore['getPosts']>) {
-    const ollamaUrl = this.ollamaUrl()
-    if (!ollamaUrl) return undefined
+  private async generateRecommendation(
+    accounts: ReturnType<LocalStore['getAccounts']>,
+    posts: ReturnType<LocalStore['getPosts']>,
+  ) {
     const context = {
       connectedAccounts: accounts.map((account) => ({
         platform: account.platform,
@@ -115,32 +107,16 @@ export class AiController {
         metrics: post.metrics,
       })),
     }
+
+    const prompt = `You are the AI assistant for 0.5 Show, a social media command center. Using only the brand data provided, give one concise, actionable content recommendation. Do not invent metrics, episode numbers, or platform data. If there is not enough data to make a useful recommendation, say exactly what data is missing and the single most practical next step. Brand data: ${JSON.stringify(context)}`
+
     try {
-      const response = await fetch(`${ollamaUrl}/api/generate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.ollamaModel(),
-          stream: false,
-          prompt: `You are FeedForge's assistant. Using only this brand data, give one concise content recommendation. Do not invent metrics, topics, episode numbers, or platform data. If there is not enough data, say exactly what data is missing and the next practical step. Data: ${JSON.stringify(context)}`,
-        }),
-      })
-      if (!response.ok) return undefined
-      const body = await response.json() as { response?: string }
-      const action = body.response?.trim()
-      if (!action) return undefined
-      return { title: 'AI recommendation', confidence: 0, action }
+      const result = await generateText(prompt)
+      if (!result.text) return undefined
+      return { title: 'AI recommendation', confidence: 0, action: result.text }
     } catch {
       return undefined
     }
-  }
-
-  private ollamaUrl() {
-    return process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434'
-  }
-
-  private ollamaModel() {
-    return process.env.OLLAMA_MODEL ?? 'llama3.2'
   }
 }
 

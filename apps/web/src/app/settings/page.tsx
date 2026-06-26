@@ -135,7 +135,7 @@ export default function SettingsPage() {
         <ol>
           <li><b>1</b><span>Add the brand&apos;s Client ID and Secret for the platform.</span></li>
           <li><b>2</b><span>Click Connect, sign in, and approve the requested permissions.</span></li>
-          <li><b>3</b><span>The channel appears here and FeedForge starts syncing real history.</span></li>
+          <li><b>3</b><span>The channel appears here and 0.5 Show starts syncing real history.</span></li>
         </ol>
         <p>Credentials and channel tokens are encrypted and kept separate for each logged-in workspace.</p>
       </section>

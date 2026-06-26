@@ -108,7 +108,7 @@ export default function AnalyticsPage() {
               </div>
             ))}
           </div>
-          {analytics && analytics.heatmap.every((cell) => cell.score === 0) ? <div className="empty-state compact">No post-time engagement history yet. Once FeedForge has published posts with performance, darker blocks will show stronger time windows.</div> : null}
+          {analytics && analytics.heatmap.every((cell) => cell.score === 0) ? <div className="empty-state compact">No post-time engagement history yet. Once 0.5 Show has published posts with performance, darker blocks will show stronger time windows.</div> : null}
           <div className="trend-list">{analytics?.trends.map((trend) => <div key={trend.label}><strong>{trend.label}</strong><span>+{trend.lift}x</span><small>{trend.evidence}</small></div>)}</div>
           {analytics && analytics.trends.length === 0 ? <div className="empty-state">No tagged content trends yet.</div> : null}
         </article>

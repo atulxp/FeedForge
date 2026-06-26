@@ -6,7 +6,7 @@ export class HealthController {
   getHealth() {
     return {
       status: 'ok',
-      service: 'feedforge-api',
+      service: '0.5-show-api',
       storage: 'local-file',
       timestamp: new Date().toISOString(),
     }

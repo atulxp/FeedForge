@@ -30,7 +30,7 @@ export default function AiInsightsPage() {
 
   return (
     <div className="content">
-      <div className="page-heading"><div><p className="eyebrow">Human-confirmed intelligence</p><h1>AI insights</h1><p>Suggestions use your connected channels and saved content history. Empty cards mean FeedForge needs more real history, not filler.</p></div></div>
+      <div className="page-heading"><div><p className="eyebrow">Human-confirmed intelligence</p><h1>AI insights</h1><p>Suggestions use your connected channels and saved content history. Empty cards mean 0.5 Show needs more real history, not filler.</p></div></div>
       {loading ? <div className="success-message">Preparing suggestions. First response can take a few seconds.</div> : null}
       {error ? <div className="error-message">{error}</div> : null}
       <section className="insight-grid">

@@ -32,8 +32,8 @@ export default function SignupPage() {
     <main className="auth-page">
       <section className="auth-shell">
         <aside className="auth-hero">
-          <span className="brand-mark">FF</span>
-          <p className="eyebrow">FeedForge</p>
+          <span className="brand-mark">ZPF</span>
+          <p className="eyebrow">0.5 Show</p>
           <h2>Build a private performance history from day one.</h2>
           <p>Every workspace keeps its channels, credentials, posts, reports, and analytics separated.</p>
           <div className="auth-stats">
@@ -50,7 +50,7 @@ export default function SignupPage() {
         <form className="auth-card" onSubmit={submit}>
           <p className="eyebrow">New workspace</p>
           <h1>Create your account.</h1>
-          <p>Your accounts, posts, tokens, analytics, and reports remain scoped to this FeedForge user.</p>
+          <p>Your accounts, posts, tokens, analytics, and reports remain scoped to this 0.5 Show user.</p>
           <label>Name<input value={name} onChange={(event) => { setName(event.target.value); setError('') }} required /></label>
           <label>Email<input type="email" value={email} onChange={(event) => { setEmail(event.target.value); setError('') }} required /></label>
           <label>Password

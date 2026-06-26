@@ -1,8 +1,8 @@
 {
-  "name": "feedforge",
+  "name": "zpf-social-command-center",
   "version": "0.1.0",
   "private": true,
-  "description": "FeedForge - unified social publishing, analytics, AI insights, and reports",
+  "description": "0.5 Show Social Command Center - unified social publishing, analytics, AI insights, and reports",
   "workspaces": [
     "apps/*",
     "packages/*"

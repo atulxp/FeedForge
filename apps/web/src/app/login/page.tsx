@@ -30,8 +30,8 @@ export default function LoginPage() {
     <main className="auth-page">
       <section className="auth-shell">
         <aside className="auth-hero">
-          <span className="brand-mark">FF</span>
-          <p className="eyebrow">FeedForge</p>
+          <span className="brand-mark">ZPF</span>
+          <p className="eyebrow">0.5 Show</p>
           <h2>One command center for every channel.</h2>
           <p>Connect accounts, track real performance, plan content, and turn channel history into useful next steps.</p>
           <div className="auth-stats">
@@ -48,7 +48,7 @@ export default function LoginPage() {
         <form className="auth-card" onSubmit={submit}>
           <p className="eyebrow">Secure sign in</p>
           <h1>Welcome back.</h1>
-          <p>Sign in to your private FeedForge workspace.</p>
+          <p>Sign in to your private 0.5 Show workspace.</p>
           <label>Email<input type="email" value={email} onChange={(event) => { setEmail(event.target.value); setError('') }} required /></label>
           <label>Password
             <span className="password-field">

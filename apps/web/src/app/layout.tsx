@@ -4,7 +4,7 @@ import { AuthProvider } from '@/components/auth-provider'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'FeedForge',
+  title: '0.5 Show',
   description: 'One operating surface to plan, publish, measure, and learn across every channel.',
 }
 

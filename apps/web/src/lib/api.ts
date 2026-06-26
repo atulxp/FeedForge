@@ -38,7 +38,7 @@ async function request<T>(path: string, init?: RequestInit, timeoutMs = 10_000):
     })
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new Error(`FeedForge took more than ${Math.round(timeoutMs / 1000)} seconds to respond. Try again in a moment.`)
+      throw new Error(`0.5 Show took more than ${Math.round(timeoutMs / 1000)} seconds to respond. Try again in a moment.`)
     }
     throw error
   } finally {

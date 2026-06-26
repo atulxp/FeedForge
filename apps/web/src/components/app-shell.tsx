@@ -26,9 +26,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <main className="app-shell">
       <aside className="sidebar">
-        <Link className="brand" href="/" aria-label="FeedForge home">
-          <span className="brand-mark">FF</span>
-          <span>FeedForge<small>Command Center</small></span>
+        <Link className="brand" href="/" aria-label="0.5 Show home">
+          <span className="brand-mark">ZPF</span>
+          <span>0.5 Show<small>Command Center</small></span>
         </Link>
 
         <nav>
@@ -52,7 +52,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <section className="workspace">
         <header className="topbar">
-          <Link className="mobile-brand" href="/" aria-label="Home">FF</Link>
+          <Link className="mobile-brand" href="/" aria-label="Home">ZPF</Link>
           <div className="scope"><span className="status-dot" />All channels</div>
           <div className="top-actions">
             <span className="local-badge">Private workspace</span>

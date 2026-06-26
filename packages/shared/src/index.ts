@@ -319,7 +319,7 @@ export type CaptionRequest = {
 
 export type CaptionResponse = {
   copy: string
-  provider: 'ollama' | 'local-template'
+  provider: 'anthropic' | 'gemini' | 'openrouter' | 'local-template'
   requiresHumanApproval: true
 }
 
