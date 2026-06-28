@@ -17,13 +17,21 @@ export function currentUserId(store: LocalStore, request: { headers?: { cookie?:
   return store.getUserFromToken(token).id
 }
 
-export function sessionCookie(token: string) {
-const secure =
-  process.env.NODE_ENV === 'production'
-    ? '; Secure; SameSite=None'
-    : '; SameSite=Lax'
+import { createHash } from 'crypto'   // if not already imported
 
-return `zpf_session=${token}; HttpOnly${secure}; Path=/; Max-Age=${7 * 24 * 60 * 60}`
+export function sessionCookie(token: string) {
+  const secure =
+    process.env.NODE_ENV === 'production'
+      ? '; Secure; SameSite=None'
+      : '; SameSite=Lax'
+
+  console.log('Cookie token:', token)
+  console.log(
+    'Cookie hash:',
+    createHash('sha256').update(token).digest('hex'),
+  )
+
+  return `zpf_session=${token}; HttpOnly${secure}; Path=/; Max-Age=${7 * 24 * 60 * 60}`
 }
 
 export const clearSessionCookie =

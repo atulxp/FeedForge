@@ -123,13 +123,9 @@ export class LocalStore implements OnModuleInit {
     if (!user || !verifyPassword(input.password, user.passwordSalt, user.passwordHash)) {
       throw new UnauthorizedException('Invalid email or password')
     }
-    const token = this.createSession(user.id)
-    console.log('Created session:')
-    console.log(this.state.sessions.at(-1))
-    
-    await this.persist()
-
-    return { user: this.publicUser(user), token }
+      const token = this.createSession(user.id)
+      await this.persist()
+      return { user: this.publicUser(user), token }
   }
 
   async logout(token?: string) {
@@ -140,20 +136,7 @@ export class LocalStore implements OnModuleInit {
   }
 
 getUserFromToken(token?: string): User {
-  console.log('==============================')
-  console.log('Incoming token:', token)
-
   const tokenHash = token ? this.hashToken(token) : undefined
-  console.log('Incoming hash:', tokenHash)
-
-  console.log(
-    'Stored sessions:',
-    this.state.sessions.map(s => ({
-      tokenHash: s.tokenHash,
-      userId: s.userId,
-      expiresAt: s.expiresAt,
-    })),
-  )
 
   const session = this.state.sessions.find(
     item =>
@@ -161,14 +144,9 @@ getUserFromToken(token?: string): User {
       new Date(item.expiresAt) > new Date(),
   )
 
-  console.log('Matched session:', session)
-
   const user = session
     ? this.state.users.find(item => item.id === session.userId)
     : undefined
-
-  console.log('Matched user:', user)
-  console.log('==============================')
 
   if (!user) throw new UnauthorizedException('Login required')
   return this.publicUser(user)
