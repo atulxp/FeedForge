@@ -124,7 +124,11 @@ export class LocalStore implements OnModuleInit {
       throw new UnauthorizedException('Invalid email or password')
     }
     const token = this.createSession(user.id)
+    console.log('Created session:')
+    console.log(this.state.sessions.at(-1))
+    
     await this.persist()
+
     return { user: this.publicUser(user), token }
   }
 
@@ -135,13 +139,40 @@ export class LocalStore implements OnModuleInit {
     await this.persist()
   }
 
-  getUserFromToken(token?: string): User {
-    const tokenHash = token ? this.hashToken(token) : undefined
-    const session = this.state.sessions.find((item) => item.tokenHash === tokenHash && new Date(item.expiresAt) > new Date())
-    const user = session ? this.state.users.find((item) => item.id === session.userId) : undefined
-    if (!user) throw new UnauthorizedException('Login required')
-    return this.publicUser(user)
-  }
+getUserFromToken(token?: string): User {
+  console.log('==============================')
+  console.log('Incoming token:', token)
+
+  const tokenHash = token ? this.hashToken(token) : undefined
+  console.log('Incoming hash:', tokenHash)
+
+  console.log(
+    'Stored sessions:',
+    this.state.sessions.map(s => ({
+      tokenHash: s.tokenHash,
+      userId: s.userId,
+      expiresAt: s.expiresAt,
+    })),
+  )
+
+  const session = this.state.sessions.find(
+    item =>
+      item.tokenHash === tokenHash &&
+      new Date(item.expiresAt) > new Date(),
+  )
+
+  console.log('Matched session:', session)
+
+  const user = session
+    ? this.state.users.find(item => item.id === session.userId)
+    : undefined
+
+  console.log('Matched user:', user)
+  console.log('==============================')
+
+  if (!user) throw new UnauthorizedException('Login required')
+  return this.publicUser(user)
+}
 
   getAccounts(userId: string) {
     return structuredClone(this.state.accounts.filter((account) => account.userId === userId))
