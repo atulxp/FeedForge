@@ -18,8 +18,15 @@ export function currentUserId(store: LocalStore, request: { headers?: { cookie?:
 }
 
 export function sessionCookie(token: string) {
-  const secure = process.env.NODE_ENV === 'production' ? '; Secure' : ''
-  return `zpf_session=${token}; HttpOnly; SameSite=Lax; Path=/; Max-Age=${7 * 24 * 60 * 60}${secure}`
+const secure =
+  process.env.NODE_ENV === 'production'
+    ? '; Secure; SameSite=None'
+    : '; SameSite=Lax'
+
+return `zpf_session=${token}; HttpOnly${secure}; Path=/; Max-Age=${7 * 24 * 60 * 60}`
 }
 
-export const clearSessionCookie = 'zpf_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0'
+export const clearSessionCookie =
+  process.env.NODE_ENV === 'production'
+    ? 'zpf_session=; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=0'
+    : 'zpf_session=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0'
