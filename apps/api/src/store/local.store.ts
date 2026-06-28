@@ -81,15 +81,19 @@ export class LocalStore implements OnModuleInit {
   private state: LocalState = createSeedState()
 
   async onModuleInit() {
-    await mkdir(dirname(this.filePath), { recursive: true })
+  await mkdir(dirname(this.filePath), { recursive: true })
 
-    try {
-      this.state = this.migrate(JSON.parse(await readFile(this.filePath, 'utf8')) as Partial<LocalState>)
-    } catch {
-      this.state = createSeedState()
-      await this.persist()
-    }
+  try {
+    this.state = this.migrate(
+      JSON.parse(await readFile(this.filePath, 'utf8')) as Partial<LocalState>
+    )
+  } catch {
+    this.state = createSeedState()
   }
+
+  await this.seedDemoWorkspace()
+  await this.persist()
+}
 
   async signup(input: SignupInput): Promise<AuthResponse & { token: string }> {
     const email = input.email.trim().toLowerCase()
@@ -857,6 +861,29 @@ export class LocalStore implements OnModuleInit {
       reports: existingReports,
     }
   }
+
+private async seedDemoWorkspace() {
+  const demoEmail = 'demo@0point5show.com'
+
+  const existing = this.state.users.find(
+    (user) => user.email === demoEmail
+  )
+
+  if (existing) {
+    return
+  }
+
+  const password = hashPassword('Demo@123')
+
+  this.state.users.push({
+    id: 'demo-user',
+    email: demoEmail,
+    name: 'Demo Workspace',
+    createdAt: new Date().toISOString(),
+    passwordHash: password.hash,
+    passwordSalt: password.salt,
+  })
+}
 
   private async refreshYouTubeAccessToken(userId: string, refreshToken: string) {
     const credentials = this.resolveProviderCredential(userId, 'youtube')
