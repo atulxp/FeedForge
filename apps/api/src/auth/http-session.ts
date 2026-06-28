@@ -25,12 +25,6 @@ export function sessionCookie(token: string) {
       ? '; Secure; SameSite=None'
       : '; SameSite=Lax'
 
-  console.log('Cookie token:', token)
-  console.log(
-    'Cookie hash:',
-    createHash('sha256').update(token).digest('hex'),
-  )
-
   return `zpf_session=${token}; HttpOnly${secure}; Path=/; Max-Age=${7 * 24 * 60 * 60}`
 }
 
