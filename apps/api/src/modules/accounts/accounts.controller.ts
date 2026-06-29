@@ -61,7 +61,7 @@ export class AccountsController {
     @Res() response: { redirect: (url: string) => void },
   ) {
     const userId = currentUserId(this.store, request)
-    if (error) return response.redirect(`http://localhost:3000/settings?connection=error&message=${encodeURIComponent(error)}`)
+    if (error) return response.redirect(`${process.env.APP_URL ?? 'http://localhost:3000'}/settings?connection=error&message=${encodeURIComponent(error)}`)
     if (!code || !state) throw new BadRequestException('OAuth callback is missing code or state')
     const oauthState = this.store.consumeOauthState(userId, platform, state)
     if (!oauthState) throw new BadRequestException('OAuth state is invalid or expired')
@@ -71,10 +71,10 @@ export class AccountsController {
       else if (platform === 'x') await this.finishX(userId, code, oauthState.scopes, oauthState.codeVerifier)
       else if (platform === 'youtube') await this.finishYouTube(userId, code, oauthState.scopes)
       else throw new BadRequestException('Live connection for this platform is not finished yet')
-      return response.redirect(`http://localhost:3000/settings?connection=success&platform=${platform}`)
+      return response.redirect(`${process.env.APP_URL ?? 'http://localhost:3000'}/settings?connection=success&platform=${platform}`)
     } catch (callbackError) {
       const message = callbackError instanceof Error ? callbackError.message : 'OAuth connection failed'
-      return response.redirect(`http://localhost:3000/settings?connection=error&message=${encodeURIComponent(message)}`)
+      return response.redirect(`${process.env.APP_URL ?? 'http://localhost:3000'}/settings?connection=error&message=${encodeURIComponent(message)}`)
     }
   }
 
