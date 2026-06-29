@@ -36,8 +36,11 @@ export class DashboardController {
     ])
     const latestYouTube = await this.store.getLatestYouTubeContent(userId)
     const accounts = this.store.getAccounts(userId)
+    const hasAnalytics = accounts.some(
+  account => account.reach > 0 || account.audience > 0
+)
 const dashboardAccounts: Account[] =
-  accounts.length > 0
+  hasAnalytics
     ? accounts
     : [
         {
